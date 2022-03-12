@@ -253,3 +253,494 @@ class Soal extends \yii\db\ActiveRecord
         return $this->hasOne(User::className(), ['id' => 'verify_by']);
     }
 }
+
+
+
+
+
+
+
+//soalSearch
+<?php
+
+namespace app\models;
+
+use Yii;
+use yii\base\Model;
+use yii\data\ActiveDataProvider;
+use app\models\Soal;
+
+/**
+ * SoalSearch represents the model behind the search form of `app\models\Soal`.
+ */
+class SoalSearch extends Soal
+{
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['id', 'dosen_id', 'no', 'verify_by', 'ujian'], 'integer'],
+            [['verify_at', 'created_at', 'updated_at', 'soal'], 'safe'],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function scenarios()
+    {
+        // bypass scenarios() implementation in the parent class
+        return Model::scenarios();
+    }
+
+    /**
+     * Creates data provider instance with search query applied
+     *
+     * @param array $params
+     *
+     * @return ActiveDataProvider
+     */
+    public function search($params)
+    {
+        $query = Soal::find();
+
+        // add conditions that should always apply here
+
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+        ]);
+
+        $this->load($params);
+
+        if (!$this->validate()) {
+            // uncomment the following line if you do not want to return any records when validation fails
+            // $query->where('0=1');
+            return $dataProvider;
+        }
+
+        // grid filtering conditions
+        $query->andFilterWhere([
+            'id' => $this->id,
+            'dosen_id' => $this->dosen_id,
+            'no' => $this->no,
+            'verify_by' => $this->verify_by,
+            'verify_at' => $this->verify_at,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
+            'ujian' => $this->ujian,
+        ]);
+
+        $query->andFilterWhere(['like', 'soal', $this->soal]);
+
+        return $dataProvider;
+    }
+}
+
+
+
+
+
+//view
+//_form
+<?php
+
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/* @var $this yii\web\View */
+/* @var $model app\models\Soal */
+/* @var $form yii\widgets\ActiveForm */
+$model->dosen_id = $dosen->id;
+?>
+
+<div class="body">
+
+    <?php $form = ActiveForm::begin([
+        'options' => [
+            'id' => 'form_validation',
+        ]
+    ]); ?>
+
+
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">Dosen pengampu</label>
+        <div class="col-sm-9">
+            <?= ($dosen["nama_dosen"]); ?>
+            <?= $form->field($model, 'dosen_id', ['options' => ['tag' => false]])->hiddenInput()->label(false) ?>
+
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">No</label>
+        <div class="col-sm-9">
+            <?= $form->field($model, 'no', ['options' => ['tag' => false]])->textInput()->label(false) ?>
+
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">Soal</label>
+        <div class="col-sm-9">
+            <?= $form->field($model, 'soal', ['options' => ['tag' => false]])->textInput()->label(false) ?>
+
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">Verify at</label>
+        <div class="col-sm-9">
+            <?php
+            $verified = false;
+            if ($verified = true) {
+                echo ('verified');
+            } else {
+                echo ('not verified');
+            }
+            ?>
+            <?= $form->field($model, 'verify_at', ['options' => ['tag' => false]])->hiddenInput()->label(false) ?>
+
+
+        </div>
+    </div>
+    <!-- <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">Updated at</label>
+        <div class="col-sm-9">
+
+            <?= $form->field($model, 'updated_at', ['options' => ['tag' => false]])->hiddenInput()->label(false) ?>
+
+
+        </div>
+    </div> -->
+    <!-- <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">Created at</label>
+        <div class="col-sm-9">
+            <?= $form->field($model, 'created_at', ['options' => ['tag' => false]])->hiddenInput()->label(false) ?>
+
+
+        </div>
+    </div> -->
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">Verified by</label>
+        <div class="col-sm-9">
+            <?php
+            if ($verified = true) {
+                echo ('verified');
+            } else {
+                echo ('not verified');
+            }
+            ?>
+            <?= $form->field($model, 'verify_by', ['options' => ['tag' => false]])->hiddenInput()->label(false) ?>
+
+
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">Ujian</label>
+        <div class="col-sm-9">
+            <?= $form->field($model, 'ujian', ['options' => ['tag' => false]])->textInput()->label(false) ?>
+
+
+        </div>
+    </div>
+    <?= Html::submitButton('Save', ['class' => 'btn btn-primary waves-effect']) ?>
+
+    <?php ActiveForm::end(); ?>
+
+</div>
+
+
+
+
+
+//_search
+<?php
+
+use yii\helpers\Html;
+use yii\widgets\ActiveForm;
+
+/* @var $this yii\web\View */
+/* @var $model app\models\SoalSearch */
+/* @var $form yii\widgets\ActiveForm */
+?>
+
+<div class="soal-search">
+
+    <?php $form = ActiveForm::begin([
+        'action' => ['index'],
+        'method' => 'get',
+    ]); ?>
+
+    <?= $form->field($model, 'id') ?>
+
+    <?= $form->field($model, 'dosen_id') ?>
+
+    <?= $form->field($model, 'no') ?>
+
+    <?= $form->field($model, 'verify_by') ?>
+
+    <?= $form->field($model, 'verify_at') ?>
+
+    <?php // echo $form->field($model, 'created_at') ?>
+
+    <?php // echo $form->field($model, 'updated_at') ?>
+
+    <?php // echo $form->field($model, 'soal') ?>
+
+    <?php // echo $form->field($model, 'ujian') ?>
+
+    <div class="form-group">
+        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
+        <?= Html::resetButton('Reset', ['class' => 'btn btn-default']) ?>
+    </div>
+
+    <?php ActiveForm::end(); ?>
+
+</div>
+
+
+
+
+//create
+<?php
+
+use yii\helpers\Html;
+
+
+/* @var $this yii\web\View */
+/* @var $model app\models\Soal */
+
+$this->title = 'Create Soal';
+$this->params['breadcrumbs'][] = ['label' => 'Soals', 'url' => ['index']];
+$this->params['breadcrumbs'][] = $this->title;
+?>
+<h3><?= Html::encode($this->title) ?></h3>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?= Html::encode($this->title) ?></h3>
+            </div>
+            <div class="panel-body ">
+
+
+
+    <?= $this->render('_form', [
+        'model' => $model,
+        'dosen' => $dosen,
+    ]) ?>
+    	   </div>
+        </div>
+    </div>
+</div>
+
+
+
+//index
+<?php
+
+use yii\helpers\Html;
+use kartik\grid\GridView;
+
+/* @var $this yii\web\View */
+/* @var $searchModel app\models\SoalSearch */
+/* @var $dataProvider yii\data\ActiveDataProvider */
+
+$this->title = 'Soals';
+$this->params['breadcrumbs'][] = $this->title;
+
+?>
+
+<h3><?= Html::encode($this->title) ?></h3>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?= Html::encode($this->title) ?></h3>
+            </div>
+            <div class="panel-body ">
+
+                <p>
+                    <?= Html::a('Create Soal', ['create', 'jid' => $jid], ['class' => 'btn btn-success']) ?>
+                </p>
+                <?php
+                $gridColumns = [
+                    [
+                        'class' => 'kartik\grid\SerialColumn',
+                        'contentOptions' => ['class' => 'kartik-sheet-style'],
+                        'width' => '36px',
+                        'pageSummary' => 'Total',
+                        'pageSummaryOptions' => ['colspan' => 6],
+                        'header' => '',
+                        'headerOptions' => ['class' => 'kartik-sheet-style']
+                    ],
+                    'id',
+                    'dosen_pengampu',
+                    'no',
+                    'verify_at',
+                    'updated_at',
+                    //'created_at',
+                    //'verified_by',
+                    //'ujian',
+                    ['class' => 'yii\grid\ActionColumn']
+                ]; ?>
+                <?= GridView::widget([
+                    'pager' => [
+                        'options' => ['class' => 'pagination'],
+                        'activePageCssClass' => 'active paginate_button page-item',
+                        'disabledPageCssClass' => 'disabled paginate_button',
+                        'prevPageLabel' => 'Previous',
+                        'nextPageLabel' => 'Next',
+                        'firstPageLabel' => 'First',
+                        'lastPageLabel' => 'Last',
+                        'nextPageCssClass' => 'paginate_button next page-item',
+                        'prevPageCssClass' => 'paginate_button previous page-item',
+                        'firstPageCssClass' => 'first paginate_button page-item',
+                        'lastPageCssClass' => 'last paginate_button page-item',
+                        'maxButtonCount' => 10,
+                        'linkOptions' => [
+                            'class' => 'page-link'
+                        ]
+                    ],
+                    'dataProvider' => $dataProvider,
+                    'filterModel' => $searchModel,
+                    'responsiveWrap' => false,
+                    'columns' => $gridColumns,
+                    'containerOptions' => ['style' => 'overflow: auto'],
+                    'headerRowOptions' => ['class' => 'kartik-sheet-style'],
+                    'filterRowOptions' => ['class' => 'kartik-sheet-style'],
+                    'containerOptions' => ['style' => 'overflow: auto'],
+                    'beforeHeader' => [
+                        [
+                            'columns' => [
+                                ['content' => $this->title, 'options' => ['colspan' => 14, 'class' => 'text-center warning']], //cuma satu 
+                            ],
+                            'options' => ['class' => 'skip-export']
+                        ]
+                    ],
+                    'exportConfig' => [
+                        GridView::PDF => ['label' => 'Save as PDF'],
+                        GridView::EXCEL => ['label' => 'Save as EXCEL'], //untuk menghidupkan button export ke Excell
+                        GridView::HTML => ['label' => 'Save as HTML'], //untuk menghidupkan button export ke HTML
+                        GridView::CSV => ['label' => 'Save as CSV'], //untuk menghidupkan button export ke CVS
+                    ],
+
+                    'toolbar' =>  [
+                        '{export}','{toggleData}' //uncoment untuk menghidupkan button menampilkan semua data..
+                    ],
+                    'toggleDataContainer' => ['class' => 'btn-group mr-2'],
+                    // set export properties
+                    'export' => [
+                        'fontAwesome' => true
+                    ],
+                    'pjax' => true,
+                    'bordered' => true,
+                    'striped' => true,
+                    // 'condensed' => false,
+                    // 'responsive' => false,
+                    'hover' => true,
+                    // 'floatHeader' => true,
+                    // 'showPageSummary' => true, //true untuk menjumlahkan nilai di suatu kolom, kebetulan pada contoh tidak ada angka.
+                    'panel' => [
+                        'type' => GridView::TYPE_PRIMARY
+                    ],
+                ]); ?>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+//update
+<?php
+
+use yii\helpers\Html;
+
+/* @var $this yii\web\View */
+/* @var $model app\models\Soal */
+
+$this->title = 'Update Soal: ' . $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Soals', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => $model->id, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = 'Update';
+?>
+<h3><?= Html::encode($this->title) ?></h3>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-heading">
+                <h3 class="panel-title"><?= Html::encode($this->title) ?></h3>
+            </div>
+            <div class="panel-body ">
+    <?= $this->render('_form', [
+        'model' => $model,
+        // 'dosen' => $dosen,
+    ]) ?>
+           </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+//view
+<?php
+
+use yii\helpers\Html;
+use yii\widgets\DetailView;
+
+/* @var $this yii\web\View */
+/* @var $model app\models\Soal */
+
+$this->title = $model->id;
+$this->params['breadcrumbs'][] = ['label' => 'Soals', 'url' => ['index']];
+$this->params['breadcrumbs'][] = $this->title;
+?>
+<div class="block-header">
+    <h2><?= Html::encode($this->title) ?></h2>
+</div>
+<div class="row">
+   <div class="col-md-12">
+        <div class="panel">
+            <div class="panel-heading">
+                <?= Html::a('Update', ['update', 'id' => $model->id,], ['class' => 'btn btn-primary']) ?>
+                <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+                    'class' => 'btn btn-danger',
+                    'data' => [
+                        'confirm' => 'Are you sure you want to delete this item?',
+                        'method' => 'post',
+                    ],
+                ]) ?>
+            </div>
+
+            <div class="panel-body ">
+        
+<?= DetailView::widget([
+        'model' => $model,
+        'attributes' => [
+            'id',
+
+            'no',
+            'ujian',
+            'soal:ntext',
+            'verify_by',
+            'verify_at',
+            'created_at',
+            'updated_at',
+        ],
+    ]) ?>
+
+            </div>
+        </div>
+
+    </div>
+</div>
