@@ -141,3 +141,115 @@ class SoalController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 }
+
+
+
+//soal model
+<?php
+
+namespace app\models;
+
+use Yii;
+
+/**
+ * This is the model class for table "soal".
+ *
+ * @property int $id
+ * @property int $dosen_id
+ * @property int $no
+ * @property string|null $verify_at
+ * @property string|null $updated_at
+ * @property string|null $created_at
+ * @property int|null $verify_by
+ * @property int $ujian
+ * @property string $soal
+ *
+ * @property SimakMasterdosen $dosenPengampu
+ * @property Jawaban[] $jawabans
+ * @property Ujian $ujian0
+ * @property SimakUsers $verifiedBy
+ */
+class Soal extends \yii\db\ActiveRecord
+{
+    /**
+     * {@inheritdoc}
+     */
+    public static function tableName()
+    {
+        return 'soal';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['dosen_id', 'no', 'ujian', 'soal'], 'required'],
+            [['dosen_id', 'no', 'verify_by', 'ujian'], 'integer'],
+            [['verify_at', 'updated_at', 'created_at'], 'safe'],
+            [['soal'], 'string', 'max' => 9999],
+            [['dosen_id'], 'exist', 'skipOnError' => true, 'targetClass' => SimakMasterdosen::className(), 'targetAttribute' => ['dosen_id' => 'id']],
+            [['verify_by'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['verify_by' => 'id']],
+            [['ujian'], 'exist', 'skipOnError' => true, 'targetClass' => Ujian::className(), 'targetAttribute' => ['ujian' => 'id']],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'dosen_id' => 'Dosen Id',
+            'no' => 'No',
+            'verify_at' => 'Verify At',
+            'updated_at' => 'Updated At',
+            'created_at' => 'Created At',
+            'verify_by' => 'Verified By',
+            'ujian' => 'Ujian',
+            'soal' => 'Soal',
+        ];
+    }
+
+    /**
+     * Gets query for [[DosenPengampu]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDosenPengampu()
+    {
+        return $this->hasOne(SimakMasterdosen::className(), ['id' => 'dosen_id']);
+    }
+
+    /**
+     * Gets query for [[Jawabans]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getJawabans()
+    {
+        return $this->hasMany(Jawaban::className(), ['soal' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Ujian0]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUjian0()
+    {
+        return $this->hasOne(Ujian::className(), ['id' => 'ujian']);
+    }
+
+    /**
+     * Gets query for [[VerifiedBy]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getVerifiedBy()
+    {
+        return $this->hasOne(User::className(), ['id' => 'verify_by']);
+    }
+}
